@@ -21,4 +21,5 @@ from main_app.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('books', BookApiView.as_view()),
+    path('secret', SecretApiView.as_view()),
 ]
