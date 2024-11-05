@@ -1,0 +1,18 @@
+pip install djangorestframework -> Устанавливает DRF
+-- В core/setting.py в INSTALLED_APPS добавить 'rest_framework'
+
+-- Сериализация -> Процесс, конвертации из вашего формата в общепринятный формат(JSON)
+-- Для сериалайзеров нужен новый файл(Например serializers.py)
+-- Пример сериалайзера:
+
+from rest_framework.serializers import ModelSerializer
+from .models import *
+
+
+class BookSerializer(ModelSerializer):
+    class Meta:
+        model = Book  # Для какой модели сериалайзер
+        fields = ['id', 'name', 'description', 'year']  # Какие поля переводить ('__all__' работает)
+
+-- Конец примера сериалайзера
+-- Вью пишутся как классы, наследуясь от APIView
