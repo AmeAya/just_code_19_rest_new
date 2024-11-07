@@ -22,4 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('books', BookApiView.as_view()),
     path('secret', SecretApiView.as_view()),
+    path('registration', RegistrationApiView.as_view()),
+    path('auth', AuthApiView.as_view()),
 ]

@@ -92,8 +92,43 @@ class SecretApiView(APIView):
         return Response(data={'secret': '1+1=11'}, status=status.HTTP_200_OK)
 
 
-# 1) Создать новую модель(минимум 3 поля)
-# 2) Создать сериалайзер для новой модели
-# 3) Создать АПИ:
-#    GET -> Все записи из новой модели
-#    POST -> Создать новую запись для новой модельки
+class RegistrationApiView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):  # Чисто ради примера, ради дебагинга!
+        from django.contrib.auth.models import User
+        users = User.objects.all()
+        data = UserSerializer(users, many=True).data
+        return Response(data=data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        from django.contrib.auth.models import User
+        from django.db import IntegrityError
+        username = request.data.get('username')
+        password = request.data.get('password')
+        try:
+            User.objects.create_user(username=username, password=password)
+            return Response(data={'message': 'Registration success'}, status=status.HTTP_200_OK)
+        except IntegrityError:
+            return Response(data={'message': 'Username is already registered'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AuthApiView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        from django.contrib.auth import login, authenticate
+        username = request.data.get('username')
+        password = request.data.get('password')
+        user = authenticate(username=username, password=password)
+        if user is None:
+            return Response(data={'message': 'Invalid username/password'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            login(request, user)
+            return Response(data={'message': 'Auth success!'}, status=status.HTTP_200_OK)
+
+
+# Создать новый APIView.
+# Выставить permission_classes - IsAuthenticated
+# На ГЕТ запрос должна возвращать данные об этом пользователе(request.user засунуть в UserSerializer)
+# Протестировать АПИ через постман
