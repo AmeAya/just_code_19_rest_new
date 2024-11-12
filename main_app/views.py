@@ -128,7 +128,69 @@ class AuthApiView(APIView):
             return Response(data={'message': 'Auth success!'}, status=status.HTTP_200_OK)
 
 
-# Создать новый APIView.
-# Выставить permission_classes - IsAuthenticated
-# На ГЕТ запрос должна возвращать данные об этом пользователе(request.user засунуть в UserSerializer)
-# Протестировать АПИ через постман
+class TestApiView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):  # Записываем в сесии book_id и example
+        book_id = request.data.get('book_id')
+        request.session['book_id'] = book_id
+        request.session['example'] = 'Hello, World!'
+        return Response(data=request.session, status=status.HTTP_200_OK)
+
+
+class CheckApiView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):  # Возвращает все что есть в сессиях
+        return Response(data=request.session, status=status.HTTP_200_OK)
+
+
+class CabinetApiView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # request.user -> Если пользователь авторизован, то юзер лежит в request.user
+        data = UserSerializer(request.user, many=False).data
+        data['cart'] = request.session.get('example')
+        return Response(data=data, status=status.HTTP_200_OK)
+
+    def delete(self, request):
+        request.user.delete()
+        return Response(data={'message': 'OK!'}, status=status.HTTP_200_OK)
+
+
+class BookSearchApiView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        search = request.GET.get('search')
+        book_by_name = Book.objects.filter(name__contains=search)
+        # __search -> Ищет слово целиком
+        # __contains -> Ищет символы без регистра
+        # __icontains -> Ищет символы c регистра
+
+        authors1 = Author.objects.filter(name__contains=search)
+        authors2 = Author.objects.filter(surname__contains=search)
+
+        books = set()
+
+        for author1 in authors1:
+            book_by_author1 = Book.objects.filter(author=author1)
+            books = books.union(book_by_author1)
+
+        for author2 in authors2:
+            book_by_author2 = Book.objects.filter(author=author2)
+            books = books.union(book_by_author2)
+
+        books = books.union(book_by_name)
+        data = BookSerializer(books, many=True).data
+        return Response(data=data, status=status.HTTP_200_OK)
+
+
+# 1) Создать ApiView -> SetLanguageApiView. Только ПОСТ запрос, которая должна запоминать
+#       в сессиях выбранный пользователем язык. Ключ "language"(str) Пример {"language": "kaz"}
+# 2) Создать ApiView -> SayHelloApiView. Проверить есть ли "language" в сессиях.
+# if request.session.get('language') == 'kaz':
+#       Если ключ есть и в нем "kaz", то возвращаем {"message": "Салем"}
+#       Если ключ есть и в нем "rus", то возвращаем {"message": "Привет"}
+#       Если ключа нету или в нем не один из этих вариантов, то возвращаем {"message": "Hello"}

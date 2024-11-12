@@ -11,6 +11,17 @@ class Book(models.Model):
     def __str__(self):
         return self.name
 
+from django.contrib.auth.models import User
+
+class Cart(models.Model):
+    items = models.ManyToManyField('CartItem')
+    customer = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+class CartItem(models.Model):
+    book = models.ForeignKey('Book', on_delete=models.CASCADE)
+    quantity = models.PositiveSmallIntegerField(default=1)
+
 
 class Author(models.Model):
     name = models.CharField(max_length=255)
