@@ -187,6 +187,43 @@ class BookSearchApiView(APIView):
         return Response(data=data, status=status.HTTP_200_OK)
 
 
+class BookOrderApiView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        # desc(Descending) убывание, asc(Ascending) возврастанию
+        year = request.GET.get('year')
+        name = request.GET.get('name')
+        books = Book.objects.all()
+
+        if year is not None:
+            if year == 'desc':
+                books = books.order_by('-year')  # 9 -> 0
+            elif year == 'asc':
+                books = books.order_by('year')  # 0 -> 9
+
+        if name is not None:
+            if name == 'desc':
+                books = books.order_by('-name')  # Z -> A
+            elif name == 'asc':
+                books = books.order_by('name')  # A -> Z
+        data = BookSerializer(books, many=True).data
+        return Response(data=data, status=status.HTTP_200_OK)
+
+
+from rest_framework.pagination import PageNumberPagination
+class BookPaginatedApiView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        books = Book.objects.all()
+        paginator = PageNumberPagination()
+        paginator.page_size = 2
+        paginated_books = paginator.paginate_queryset(books, request)
+        data = BookSerializer(paginated_books, many=True).data
+        return Response(data=data, status=status.HTTP_200_OK)
+
+
 # 1) Создать ApiView -> SetLanguageApiView. Только ПОСТ запрос, которая должна запоминать
 #       в сессиях выбранный пользователем язык. Ключ "language"(str) Пример {"language": "kaz"}
 # 2) Создать ApiView -> SayHelloApiView. Проверить есть ли "language" в сессиях.

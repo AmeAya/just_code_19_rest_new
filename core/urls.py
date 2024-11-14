@@ -28,4 +28,6 @@ urlpatterns = [
     path('auth', AuthApiView.as_view()),
     path('cabinet', CabinetApiView.as_view()),
     path('book_search', BookSearchApiView.as_view()),
+    path('book_order', BookOrderApiView.as_view()),
+    path('paginated_books', BookPaginatedApiView.as_view()),
 ]
