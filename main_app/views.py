@@ -5,6 +5,7 @@ from rest_framework import status
 
 from .models import *
 from .serializers import *
+from .permissions import *
 
 
 class BookApiView(APIView):
@@ -224,10 +225,17 @@ class BookPaginatedApiView(APIView):
         return Response(data=data, status=status.HTTP_200_OK)
 
 
-# 1) Создать ApiView -> SetLanguageApiView. Только ПОСТ запрос, которая должна запоминать
-#       в сессиях выбранный пользователем язык. Ключ "language"(str) Пример {"language": "kaz"}
-# 2) Создать ApiView -> SayHelloApiView. Проверить есть ли "language" в сессиях.
-# if request.session.get('language') == 'kaz':
-#       Если ключ есть и в нем "kaz", то возвращаем {"message": "Салем"}
-#       Если ключ есть и в нем "rus", то возвращаем {"message": "Привет"}
-#       Если ключа нету или в нем не один из этих вариантов, то возвращаем {"message": "Hello"}
+class CocktailApiView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        import requests  # pip install requests
+        response = requests.get('https://www.thecocktaildb.com/api/json/v1/1/random.php')
+        if response.status_code != 200:
+            return Response(data={'Message': 'Something went wrong!'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            cocktail = response.json()
+            data = {
+                'name': cocktail['drinks'][0]['strDrink']
+            }
+            return Response(data=data, status=status.HTTP_200_OK)

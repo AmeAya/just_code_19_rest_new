@@ -30,4 +30,10 @@ urlpatterns = [
     path('book_search', BookSearchApiView.as_view()),
     path('book_order', BookOrderApiView.as_view()),
     path('paginated_books', BookPaginatedApiView.as_view()),
+    path('cocktail', CocktailApiView.as_view()),
 ]
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

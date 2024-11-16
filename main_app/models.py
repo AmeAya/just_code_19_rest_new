@@ -5,6 +5,7 @@ class Book(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     year = models.IntegerField()
+    cover = models.ImageField(upload_to='covers', null=True, blank=True)
     author = models.ForeignKey('Author', on_delete=models.CASCADE, null=True, blank=True)
     genres = models.ManyToManyField('Genre')
 

@@ -128,6 +128,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+MEDIA_URL = 'media/'  # 127.0.0.1:8000/media/
+MEDIA_ROOT = BASE_DIR / 'media'  # Путь к папке с медиа
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 

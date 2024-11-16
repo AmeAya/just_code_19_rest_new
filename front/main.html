@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Main Page</title>
+</head>
+<body>
+    <div id="books">
+
+    </div>
+    <script>
+        async function getBooks() {
+            let request = await fetch('http://127.0.0.1:8000/books', {
+                method: 'GET'
+            });
+            let books = await request.json();
+            let books_div = document.getElementById('books');
+            for (let book of books) {
+                books_div.innerHTML += `<p>${book.name}</p>`;
+            }
+        }
+
+        getBooks();
+    </script>
+</body>
+</html>
